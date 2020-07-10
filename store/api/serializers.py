@@ -38,7 +38,7 @@ class ItemSerializer(serializers.ModelSerializer):
             sku = SKU.objects.create(name=sku_name) #otherwise we create a new one
         item.sku = sku
 
-
+        #the same logic for group
         group_list = GoodsGroup.objects.filter(name=group_name).count()
         if group_list > 0:
             group = GoodsGroup.objects.get(name=group_name)
@@ -50,7 +50,7 @@ class ItemSerializer(serializers.ModelSerializer):
         return item
 
 class ItemUpdateSerializer(serializers.ModelSerializer):
-    OPERATION_CHOICES = [
+    OPERATION_CHOICES = [ #operations are desribed in models.py, model Item
         ('addition', 'Addition'),
         ('sell', 'Sell'),
         ('sell_reserve', 'Sell from reserve'),
