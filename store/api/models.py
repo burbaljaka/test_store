@@ -25,24 +25,35 @@ class Item(models.Model):
     def __str__(self):
         return self.name
 
+    def addition(self, number):
+        with transaction.atomic():
+            if number > 0:
+                self.quantity += number
+                return self, None
+            else:
+                message = 'Cannot add negative quantity'
+                return None, message
+
     def reserve(self, number):
         if self.quantity >= number:
             with transaction.atomic():
                 self.quantity -= number
                 self.reserved += number
                 self.save()
-                return self
+                return self, None
         else:
-            raise ValueError('Item quantity is less than is being reserved')
+            message = 'Item quantity is less than is being reserved'
+            return None, message
 
     def sell(self, number):
         if self.quantity >= number:
             with transaction.atomic():
                 self.quantity -= number
                 self.save()
-                return self
+                return self, None
         else:
-            raise ValueError('Item quantity is less than is being decreased')
+            message = 'Item quantity is less than is being decreased'
+            return None, message
 
     def remove_from_reserve(self, number):
         if self.reserved >= number:
@@ -50,15 +61,17 @@ class Item(models.Model):
                 self.quantity += number
                 self.reserved -= number
                 self.save()
-                return self
+                return self, None
         else:
-            raise ValueError('Item reserved quantity is less than is being removed form reserved')
+            message = 'Item reserved quantity is less than is being removed form reserved'
+            return None, message
 
     def sell_from_reserve(self, number):
         if self.reserved >= number:
             with transaction.atomic():
                 self.reserved -= number
                 self.save()
-                return self
+                return self, None
         else:
-            raise ValueError('Item quantity is less than is being decreased')
+            message = 'Item quantity is less than is being decreased'
+            return None, message

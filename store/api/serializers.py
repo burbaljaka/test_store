@@ -33,7 +33,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
         sku_list = SKU.objects.filter(name=sku_name).count()
         if sku_list > 0:
-            sku = sku_list[0] # if there is SKU with that name, we use it
+            sku = SKU.objects.get(name=sku_name) # if there is SKU with that name, we use it
         else:
             sku = SKU.objects.create(name=sku_name) #otherwise we create a new one
         item.sku = sku
@@ -41,7 +41,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
         group_list = GoodsGroup.objects.filter(name=group_name).count()
         if group_list > 0:
-            group = group_list[0]
+            group = GoodsGroup.objects.get(name=group_name)
         else:
             group = GoodsGroup.objects.create(name=group_name)
         item.group = group
@@ -51,6 +51,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
 class ItemUpdateSerializer(serializers.ModelSerializer):
     OPERATION_CHOICES = [
+        ('addition', 'Addition'),
         ('sell', 'Sell'),
         ('sell_reserve', 'Sell from reserve'),
         ('reserve', 'Reserve'),
@@ -69,13 +70,16 @@ class ItemUpdateSerializer(serializers.ModelSerializer):
         super(ItemUpdateSerializer, self).update(instance, validated_data)
 
         operations = {
+            'addition': instance.addition,
             'sell': instance.sell,
             'sell_reserve': instance.sell_from_reserve,
             'reserve': instance.reserve,
             'remove_reserve': instance.remove_from_reserve
         }
 
-        result = operations[operation](number)
+        result, message = operations[operation](number)
+        if message:
+            raise serializers.ValidationError(message)
 
         return result
 
